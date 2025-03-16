@@ -141,3 +141,60 @@ To run this project, follow these steps:
     |-- README.md  # Setup instructions and project description
     |-- requirements.txt  # List of dependencies
 ```
+
+---
+
+## **8. Deployment Instructions**
+
+### **Docker Deployment**
+To containerize the application using Docker, follow these steps:
+
+1. **Create a Dockerfile in the project directory:**
+   ```dockerfile
+   FROM python:3.8
+   WORKDIR /app
+   COPY requirements.txt ./
+   RUN pip install --no-cache-dir -r requirements.txt
+   COPY . .
+   CMD ["python", "src/modeling.py"]
+   ```
+
+2. **Build and Run the Docker Container:**
+   ```bash
+   docker build -t ml-model .
+   docker run -p 5000:5000 ml-model
+   ```
+
+### **API Deployment Using Flask**
+To deploy the model as an API using Flask:
+
+1. **Install Flask:**
+   ```bash
+   pip install flask
+   ```
+
+2. **Create an API Service (`app.py`):**
+   ```python
+   from flask import Flask, request, jsonify
+   import pickle
+   import pandas as pd
+
+   app = Flask(__name__)
+   model = pickle.load(open("model.pkl", "rb"))
+
+   @app.route('/predict', methods=['POST'])
+   def predict():
+       data = request.get_json()
+       df = pd.DataFrame(data)
+       prediction = model.predict(df)
+       return jsonify(prediction.tolist())
+
+   if __name__ == '__main__':
+       app.run(debug=True)
+   ```
+
+3. **Run the API Server:**
+   ```bash
+   python app.py
+   ```
+
